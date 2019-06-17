@@ -4,6 +4,7 @@ from exceptions import *
 import requests
 import xmltodict
 from collections import OrderedDict
+from Book import Book
 
 def get_key_and_secret(secrets_file:str)->tuple:
     """
@@ -66,7 +67,9 @@ def get_book_data(isbn:str, api_key:str) -> OrderedDict:
 
 
 if __name__ == '__main__':
+    LITTLE_PRINCE_ISBN = "157993"
+    HARRY_POTTER_7_ISBN = "136251"
     key, secret = get_key_and_secret("secrets.json")
-    isbn = "42"
-    b = get_book_data(isbn, key)
-
+    b_data = get_book_data(LITTLE_PRINCE_ISBN, key)
+    b = Book(b_data)
+    print(b)
