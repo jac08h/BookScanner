@@ -4,28 +4,26 @@ class Book:
     def __init__(self, od:OrderedDict):
         self.b = od
 
-    def __get_authors(self) -> list:
+    def __get_authors(self) -> str:
         """
         Gets list of the authors.
         Returns:
-            list
+            str
         """
         all_authors = self.b['authors']
         try:
             author = all_authors['author']['name'] # only one author
-            return list(author)
 
         except TypeError:  # Multiple authors
-            authors = []
             for author in all_authors['author']:
                 if author['role'] is None:  # not translator/ilustrator etc
-                    authors.append(author['name'])
+                    author = author['name']
 
-            return authors
+        return author
+
 
     def __str__(self):
-        authors = self.__get_authors()
-        return f"""Title: {self.b['title']}
-ISBN: {self.b['isbn']}j
-Authors: {', '.join(authors)}"""
-
+        author = self.__get_authors()
+        return f"""ISBN: {self.b['isbn']}
+Title: {self.b['title']}
+Author: {author}"""

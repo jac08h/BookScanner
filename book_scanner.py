@@ -1,12 +1,15 @@
 import json
 import logging
-from exceptions import *
 import requests
 import xmltodict
 from collections import OrderedDict
-from Book import Book
+from xml.parsers.expat import ExpatError
+import argparse
 
-def get_key_and_secret(secrets_file:str)->tuple:
+from Book import Book
+from exceptions import *
+
+def get_key_and_secret(secrets_file:str='secrets.json')->tuple:
     """
     Read key and secret from json file.
 
@@ -56,8 +59,14 @@ def get_book_data(isbn:str, api_key:str) -> OrderedDict:
         raise WrongISBNError
 
     url = f"https://www.goodreads.com/book/isbn/{isbn}?key={api_key}"
+
     r = requests.get(url)
-    data = xmltodict.parse(r.text)
+    try:
+        data = xmltodict.parse(r.text)
+    except ExpatError:
+        logging.error(f"Invalid key")
+        raise InvalidKey
+
     try:
         book_data = data["GoodreadsResponse"]["book"]
         return book_data
@@ -66,10 +75,14 @@ def get_book_data(isbn:str, api_key:str) -> OrderedDict:
         raise WrongISBNError
 
 
+
 if __name__ == '__main__':
-    LITTLE_PRINCE_ISBN = "157993"
-    HARRY_POTTER_7_ISBN = "136251"
-    key, secret = get_key_and_secret("secrets.json")
-    b_data = get_book_data(LITTLE_PRINCE_ISBN, key)
+    parser = argparse.ArgumentParser()
+    parser.add_argument("isbn")
+    args = parser.parse_args()
+
+    isbn = args.isbn
+    key, secret = get_key_and_secret()
+    b_data = get_book_data(isbn, key)
     b = Book(b_data)
     print(b)
